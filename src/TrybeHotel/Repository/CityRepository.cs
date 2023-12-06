@@ -14,19 +14,72 @@ namespace TrybeHotel.Repository
         // 4. Refatore o endpoint GET /city
         public IEnumerable<CityDto> GetCities()
         {
-           throw new NotImplementedException();
+            try
+            {
+                var cityQuery = from city in _context.Cities
+                                select new CityDto
+                                {
+                                    CityId = city.CityId,
+                                    Name = city.Name,
+                                    State = city.State
+                                };
+
+
+                return cityQuery.ToList();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw new Exception("Erro ao executar");
+            }
+            // throw new NotImplementedException();
         }
 
         // 2. Refatore o endpoint POST /city
         public CityDto AddCity(City city)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _context.Cities.Add(city);
+                _context.SaveChanges();
+                return new CityDto
+                {
+                    CityId = _context.Cities.Count(),
+                    Name = city.Name,
+                    State = city.State
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw new Exception("Erro ao executar");
+            }
+            // throw new NotImplementedException();
         }
 
         // 3. Desenvolva o endpoint PUT /city
         public CityDto UpdateCity(City city)
         {
-           throw new NotImplementedException();
+            try
+            {
+                _context.Cities.Update(city);
+                _context.SaveChanges();
+
+                return new CityDto
+                {
+                    CityId = city.CityId,
+                    Name = city.Name,
+                    State = city.State
+                };
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw new Exception("Erro ao executar");
+            }
+            // throw new NotImplementedException();
         }
 
     }

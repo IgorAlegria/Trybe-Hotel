@@ -15,19 +15,81 @@ namespace TrybeHotel.Services
         // 11. Desenvolva o endpoint GET /geo/status
         public async Task<object> GetGeoStatus()
         {
-            throw new NotImplementedException();
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://nominatim.openstreetmap.org/status.php?format=json");
+            request.Headers.Add("Accept", "application/json");
+            request.Headers.Add("User-Agent", "aspnet-user-agent");
+
+            var response = await _client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<object>();
+                return result!;
+
+            }
+
+            return default!;
+            // throw new NotImplementedException();
         }
         
         // 12. Desenvolva o endpoint GET /geo/address
         public async Task<GeoDtoResponse> GetGeoLocation(GeoDto geoDto)
         {
-            throw new NotImplementedException();
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://nominatim.openstreetmap.org/search?street={geoDto.Address}&city={geoDto.City}&country=Brazil&state={geoDto.State}&format=json&limit=1");
+            request.Headers.Add("Accept", "application/json");
+            request.Headers.Add("User-Agent", "aspnet-user-agent");
+
+            var response = await _client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<GeoDtoResponse[]>();
+                return new GeoDtoResponse 
+                {
+                    lat = result![0].lat,
+                    lon = result![0].lon
+                };
+
+            }
+
+            return default(GeoDtoResponse)!;
+            // throw new NotImplementedException();
         }
 
         // 12. Desenvolva o endpoint GET /geo/address
         public async Task<List<GeoDtoHotelResponse>> GetHotelsByGeo(GeoDto geoDto, IHotelRepository repository)
         {
-            throw new NotImplementedException();
+            var userLocation = await GetGeoLocation(geoDto);
+            var hotels = repository.GetHotels();
+
+            var listAllHotels = new List<GeoDtoHotelResponse>();
+
+            foreach (var hotel in hotels)
+            {
+                var geoLocationHotel = await GetGeoLocation(new GeoDto
+                {
+                    Address = hotel.Address,
+                    City = hotel.CityName,
+                    State = hotel.State
+                });
+
+                listAllHotels.Add(new GeoDtoHotelResponse
+                {
+                    HotelId = hotel.HotelId,
+                    Name = hotel.Name,
+                    Address = hotel.Address,
+                    CityName = hotel.CityName,
+                    State = hotel.State,
+                    Distance = CalculateDistance(
+                    userLocation.lat!,
+                    userLocation.lon!,
+                    geoLocationHotel.lat!,
+                    geoLocationHotel.lon!
+                )
+                });
+            }
+
+            return listAllHotels.OrderBy(h => h.Distance).ToList();;
+            
+            // throw new NotImplementedException();
         }
 
        
