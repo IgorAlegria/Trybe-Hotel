@@ -30,7 +30,7 @@ namespace TrybeHotel.Controllers
         [Route("status")]
         public async Task<IActionResult> GetStatus()
         {
-            var response = _geoService.GetGeoStatus();
+            var response = await _geoService.GetGeoStatus();
 
             return Ok(response);
             // throw new NotImplementedException();
@@ -41,7 +41,10 @@ namespace TrybeHotel.Controllers
         [Route("address")]
         public async Task<IActionResult> GetHotelsByLocation([FromBody] GeoDto address)
         {
-            throw new NotImplementedException();
+            var response = await _geoService.GetHotelsByGeo(address, _repository);
+
+            return Ok(response);
+            // throw new NotImplementedException();
         }
     }
 

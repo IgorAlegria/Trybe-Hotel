@@ -62,7 +62,18 @@ namespace TrybeHotel.Repository
         // 10. Refatore o endpoint GET /booking
         public BookingResponse GetBooking(int bookingId, string email)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            var user = _context.Users.First(u => u.Email == email);
+
+            bool notExistBooking = true;
+            foreach (var booking in _context.Bookings)
+            {
+                if (booking.UserId == user.UserId && booking.BookingId == bookingId)
+                {
+                    notExistBooking = false;
+                    break;
+                }
+            }
+            if (notExistBooking) throw new Exception();
 
             var bookingResponse = _context.Bookings
                 .Where(b => b.UserId == user!.UserId && b.BookingId == bookingId)
